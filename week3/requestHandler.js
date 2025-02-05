@@ -1,5 +1,6 @@
 const fs = require('fs');
 const main_view = fs.readFileSync('web/main.html', 'utf-8');
+const account_view = fs.readFileSync('web/accountlist.html', 'utf-8');
 
 const mariadb = require('./database/connect/mariadb');
 
@@ -14,7 +15,7 @@ function main(response) {
 function join(response, id, password) {
     console.log('order');
 
-    mariadb.query("INSERT INTO account VALUES (" + id + ", " + password + ")")
+    mariadb.query("INSERT INTO account VALUES ('" + id + "', '" + password + "')")
         .then(rows => {
             console.log(rows);
         })
@@ -23,31 +24,38 @@ function join(response, id, password) {
         });
 
     response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    response.write(main_view);
+    response.end();
+}
+
+function account(response) {
+    console.log('account');
+
     response.write(account_view);
-    response.end();
-}
 
-function login(response) {
-    console.log('login');
+    mariadb.query("SELECT * FROM account")
+        .then(rows => {
+            console.log(rows);
 
-    response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    response.write('Login Page');
-    response.end();
-}
-
-function homework(response) {
-    console.log('숙제임');
-
-    response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    response.write('<h1>김영주</h1>');
-    response.end();
+            rows.forEach(element => {
+                response.write("<tr>"
+                    + "<td>" + element.id + "</td>"
+                    + "<td>" + element.password + "</td>"
+                    + "</tr>");
+            });
+            response.write("</table>");
+            response.end();
+        })
+        .catch(err => {
+            console.error(err);
+        });
 }
 
 let handle = {};
 
 handle['/'] = main;
-handle['/login'] = login;
-handle['/김영주'] = homework;
+handle['/join'] = join;
+handle['/account'] = account;
 
 
 exports.handle = handle;

@@ -5,8 +5,9 @@ function start(route, handle) {
     function onRequest(request, response) {
         let pathname = url.parse(request.url).pathname;
         if (pathname !== "/favicon.ico") {
-            let temp = decodeURIComponent(pathname);
-            temp === pathname ? route(pathname, handle, response) : route(temp, handle, response);
+            let queryData = url.parse(request.url, true).query;
+
+            route(pathname, handle, response, queryData.id, queryData.password);
         }
     }
 
