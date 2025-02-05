@@ -1,9 +1,20 @@
+const fs = require('fs');
+const main_view = fs.readFileSync('web/main.html', 'utf-8');
+
 const mariadb = require('./database/connect/mariadb');
 
 function main(response) {
     console.log('main');
 
-    mariadb.query("SELECT * FROM account")
+    response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+    response.write(main_view);
+    response.end();
+}
+
+function join(response, id, password) {
+    console.log('order');
+
+    mariadb.query("INSERT INTO account VALUES (" + id + ", " + password + ")")
         .then(rows => {
             console.log(rows);
         })
@@ -12,7 +23,7 @@ function main(response) {
         });
 
     response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-    response.write('Main Page');
+    response.write(account_view);
     response.end();
 }
 
