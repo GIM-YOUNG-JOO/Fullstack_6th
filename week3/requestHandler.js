@@ -1,5 +1,15 @@
+const mariadb = require('./database/connect/mariadb');
+
 function main(response) {
     console.log('main');
+
+    mariadb.query("SELECT * FROM account")
+        .then(rows => {
+            console.log(rows);
+        })
+        .catch(err => {
+            console.error(err);
+        });
 
     response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     response.write('Main Page');
