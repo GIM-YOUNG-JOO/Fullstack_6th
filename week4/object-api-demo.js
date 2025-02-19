@@ -27,6 +27,8 @@ app.get('/planet/:name', (req, res) => {
     if (db.has(name)) {
         const planet = db.get(name);
         res.json({ "지름": planet.diameter, "지구로부터의 거리": planet.distanceFromEarth });
+    } else if(db.size == 0) {
+        res.status(404).send("데이터가 없습니다.");
     } else {
         res.json({ error: "행성이 아닙니다" });
     }
@@ -34,10 +36,13 @@ app.get('/planet/:name', (req, res) => {
 
 app.use(express.json());
 app.post('/planet', (req, res) => {
-    
-    db.set(req.body.name, req.body.data);
-
-    res.json("지구와 "+ req.body.name + " 사이의 거리는 " + db.get(req.body.name).distanceFromEarth + "km 입니다.");
+    console.log(req.body.name);
+    if(req.body.name && req.body.data) {
+        db.set(req.body.name, req.body.data);
+        res.json("지구와 "+ req.body.name + " 사이의 거리는 " + db.get(req.body.name).distanceFromEarth + "km 입니다.");
+    } else {
+        res.status(400).send("잘못된 요청 값 입니다.");
+    }
 });
 
 app.delete('/planet/:name', (req, res) => {
@@ -53,8 +58,13 @@ app.delete('/planet/:name', (req, res) => {
 });
 
 app.delete('/planet', (req, res) => {
-    db.clear();
-    res.json({ message: "db가 초기화 되었습니다."});
+    if(db.size == 0) {
+        res.status(404).send("삭제할 데이터가 없습니다.");
+    } else {
+        db.clear();
+        res.json({ message: "db가 초기화 되었습니다."});
+    }
+    
 });
 
 app.put('/planet/:name', (req, res) => {
