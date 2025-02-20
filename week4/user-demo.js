@@ -10,9 +10,12 @@ userdb.set("kyj", { pwd: "0807", name: "김영주" });
 app.post('/login', (req, res) => {
   const { id, pwd } = req.body;
   if (userdb.has(id) && userdb.get(id).pwd === pwd) {
-    res.send(`${userdb.get(id).name}님 환영합니다`);
+    if(userdb.get(id).pwd === pwd)
+      res.send(`${userdb.get(id).name}님 환영합니다`);
+    else
+      res.send("잘못된 패스워드 입니다.");
   } else {
-    res.send('로그인 실패');
+    res.send('입력하신 아이디는 없는 아이디 입니다.');
   }
 });
 
@@ -35,14 +38,13 @@ app.get('/users/:id', (req, res) => {
 app.delete('/users/:id', (req, res) => {
   const { id } = req.params;
   if (userdb.size === 0) {
-    return res.send('삭제할 회원이 없습니다.');
-  }
-  if (userdb.has(id)) {
+    return res.send('삭제할 회원 DB가 없습니다.');
+  } else if (userdb.has(id)) {
     const user = userdb.get(id);
     userdb.delete(id);
-    res.send(`${user.name}님 다음에 또 뵙겠습니다`);
+    res.status(200).json({message : `${user.name}님 다음에 또 뵙겠습니다`});
   } else {
-    res.send(`ID가 ${id}인 회원이 존재하지 않습니다.`);
+    res.status(404).json({message : `ID가 ${id}인 회원이 존재하지 않습니다.`});
   }
 });
 
